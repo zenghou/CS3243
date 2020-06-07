@@ -103,9 +103,9 @@ class QLearningAgent(ReinforcementAgent):
         # Pick Action
         legalActions = self.getLegalActions(state)
         if len(legalActions) == 0: return None
-        # util.flip checks if random num is > epsilon
-        # if true, we exploit, else we explore (greedy epsilon algorithm)
-        return self.computeActionFromQValues(state) if util.flipCoin(self.epsilon) else random.choice(legalActions)
+        # util.flip checks if random num is < epsilon
+        # if true, explore (greedy epsilon algorithm), else exploit
+        return random.choice(legalActions) if util.flipCoin(self.epsilon) else self.computeActionFromQValues(state)
 
     def update(self, state, action, nextState, reward):
         """
@@ -117,7 +117,8 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         currQVal = self.stateActionPairToQValues[(state, action)];
-        newQVal = ((1 - self.alpha) * currQVal) + (self.alpha * (reward + (self.discount * self.computeValueFromQValues(state))))
+        newQVal = ((1 - self.alpha) * currQVal) + \
+          (self.alpha * (reward + (self.discount * self.computeValueFromQValues(nextState))))
         self.stateActionPairToQValues[(state, action)] = newQVal
 
     def getPolicy(self, state):
