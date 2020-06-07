@@ -39,13 +39,8 @@ class QLearningAgent(ReinforcementAgent):
           which returns legal actions for a state
     """
     def __init__(self, **args):
-        "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
-
         self.stateActionPairToQValues = util.Counter()
-        # self.epsilon = epsilon
-        # self.alpha = alpha
-        # self.discount = discount
 
     def getQValue(self, state, action):
         """
@@ -78,16 +73,20 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Exploit: look into state/action table and return the action that has the highest Q value
         validActions = self.getLegalActions(state)
-        if len(validActions) == 0: return None
         bestAction = None
-        maxQVal = -float('inf')
 
+        if len(validActions) == 0: return bestAction
+        maxQVal = -float('inf')
+        unseenActions = []
         for action in validActions:
           currQVal = self.getQValue(state, action)
           if currQVal > maxQVal:
             maxQVal = currQVal
             bestAction = action
-        return bestAction
+          if currQVal == 0:
+            unseenActions.append(action)
+        
+        return bestAction if (maxQVal > 0 or len(unseenActions) == 0) else random.choice(unseenActions)
 
     def getAction(self, state):
         """
